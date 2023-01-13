@@ -1,11 +1,11 @@
 {
-	"id": "obsidian-sample-plugin",
-	"name": "Sample Plugin",
-	"version": "1.0.0",
+	"id": "obsidian-testing-vault",
+	"name": "Testing Vault",
+	"version": "0.0.1",
 	"minAppVersion": "0.15.0",
-	"description": "This is a sample plugin for Obsidian. This plugin demonstrates some of the capabilities of the Obsidian API.",
-	"author": "Obsidian",
-	"authorUrl": "https://obsidian.md",
-	"fundingUrl": "https://obsidian.md/pricing",
+	"description": "This allows a developer to make a random vault of arbitrary size for testing their plugins.",
+	"author": "Michael J. Pedersen <m.pedersen@icelus.org>",
+	"authorUrl": "https://github.com/pedersen",
+	"fundingUrl": "https://github.com/pedersen/obsidian-testing-vault",
 	"isDesktopOnly": false
 }
