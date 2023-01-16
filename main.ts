@@ -7,9 +7,6 @@ let wrap = require('word-wrap');
 /*
 	Defaults for the plugin:
 	* Number of notes to make: 1000
-	* Min number of links to other notes: 1
-	* Max number of links to other notes: 10
-		* Skew towards minimum, make the higher number of links harder to happen
 
 	* From comment on Discord:
 	  You might also want to consider adding other rando text generations, other than lorem ipsum, such as
@@ -29,8 +26,6 @@ interface INoteGenerator {
 	maxParagraphs?: number; // 10
 	minTags?: number; // 0
 	maxTags?: number; // 5
-	minAliases?: number; // 0
-	maxAliases?: number; // 3
 	aliasPercent?: number; // 10
 	publishPercent?: number; // 50
 	frontMatterPercent?: number; // 90
@@ -110,7 +105,7 @@ function newTitle(titleWords: number): string {
 }
 function newLoremNote({title = '', minTitleWords = 4, maxTitleWords = 10, minSentenceWords = 5, maxSentenceWords = 20,
 					  minSentences = 4, maxSentences = 20, minParagraphs = 1, maxParagraphs = 10, minTags = 0, maxTags = 5,
-					  minAliases = 0, maxAliases = 3, aliasPercent = 10, publishPercent = 50,
+					  aliasPercent = 10, publishPercent = 50,
 					  frontMatterPercent = 90, alltitles=[], minLinks=1, maxLinks=10}: INoteGenerator): { note: string, title: string } {
 	const titleWords = randomInt(minTitleWords, maxTitleWords);
 	const numParagraphs = randomInt(minParagraphs, maxParagraphs, 4);
@@ -123,15 +118,6 @@ function newLoremNote({title = '', minTitleWords = 4, maxTitleWords = 10, minSen
 		sentenceLowerBound: minSentenceWords, sentenceUpperBound: maxSentenceWords,
 		suffix: "\n\n"
 	});
-	/*
-	 * If alltitles.length > 0:
-	 *   determine number of links
-	 *   get those subset of article titles from alltitles
-	 *   split text into paragraphs.
-	 *   for each link:
-	 *     pick random paragraph and add link to it
-	 *   join text back into one string
-	 */
 	if (alltitles?.length > 0) {
 		const numberofLinks = randomInt(minLinks, maxLinks);
 		const linkedTitles = randomSubset(alltitles, numberofLinks);
@@ -148,14 +134,10 @@ function newLoremNote({title = '', minTitleWords = 4, maxTitleWords = 10, minSen
 }
 
 async function fillVault(maxNotes: number=100, notice: Notice, vault: Vault, {emptyFilesPercent=3,
-	orphanedNotesPercent=5, leafNotesPercent=25, minTitleWords=4, maxTitleWords=10}: INoteGenerator) {
-	/*
-	 * Generate all titles
-	 * Generate empty files
-	 * Generate orphan files
-	 * Generate leaf notes
-	 */
-	console.log(`maxNotes: ${maxNotes}`)
+	orphanedNotesPercent=5, leafNotesPercent=25, minTitleWords=4, maxTitleWords=10,
+	minSentenceWords=5, maxSentenceWords=20, minSentences=4, maxSentences=20, minParagraphs=1, maxParagraphs=10,
+	minTags=0, maxTags=5, aliasPercent=10, publishPercent=50, frontMatterPercent=90,
+	minLinks=1, maxLinks=10}: INoteGenerator) {
 	let titles = Array.apply(null, Array(maxNotes)).map(function () {});
 	await notice.setMessage("Generating titles");
 	for (let i=0; i<maxNotes; i++) {
@@ -166,7 +148,6 @@ async function fillVault(maxNotes: number=100, notice: Notice, vault: Vault, {em
 	await notice.setMessage("Generating Empty Notes");
 	let generated = 0;
 	const emptyFilesCount = Math.floor(maxNotes*(emptyFilesPercent/100.0));
-	console.log(`empty notes: ${emptyFilesCount}`)
 	for (let i=0; i<emptyFilesCount; i++) {
 		await vault.create(`${titles[generated]}.md`, '');
 		generated++;
@@ -176,9 +157,14 @@ async function fillVault(maxNotes: number=100, notice: Notice, vault: Vault, {em
 	const orphanedNotesCount = Math.floor(maxNotes*(orphanedNotesPercent/100.0));
 	for (let i=0; i<orphanedNotesCount; i++) {
 		if ((i>=1) && (i%20==0)) {
-			await notice.setMessage(`Progress: Created ${i}/${orphanedNotesCount} orphaned notes so far`);
+			await notice.setMessage(`Progress: Created ${i}/${maxNotes} notes so far`);
 		}
-		let note = newLoremNote({title: titles[generated]});
+		let note = newLoremNote({title: titles[generated],
+			minTitleWords: minLinks, maxTitleWords: maxTitleWords, minSentenceWords: minSentenceWords,
+			maxSentenceWords: maxSentenceWords, minSentences: minSentences, maxSentences: maxSentences,
+			minParagraphs: minParagraphs, maxParagraphs: maxParagraphs, minTags: minTags, maxTags: maxTags,
+			aliasPercent: aliasPercent, publishPercent: publishPercent, frontMatterPercent: frontMatterPercent,
+			minLinks: minLinks, maxLinks: maxLinks});
 		await vault.create(`${note.title}.md`, note.note);
 		generated++;
 	}
@@ -188,9 +174,14 @@ async function fillVault(maxNotes: number=100, notice: Notice, vault: Vault, {em
 	const leafCount = Math.floor(maxNotes*(leafNotesPercent/100.0));
 	for (let i=0; i<leafCount; i++) {
 		if ((i>=1) && (i%20==0)) {
-			await notice.setMessage(`Progress: Created ${i}/${orphanedNotesCount} leaf notes so far`);
+			await notice.setMessage(`Progress: Created ${i}/${maxNotes} notes so far`);
 		}
-		let note = newLoremNote({title: titles[generated], alltitles: titles.slice(linksBegin)});
+		let note = newLoremNote({title: titles[generated], alltitles: titles.slice(linksBegin),
+			minTitleWords: minLinks, maxTitleWords: maxTitleWords, minSentenceWords: minSentenceWords,
+			maxSentenceWords: maxSentenceWords, minSentences: minSentences, maxSentences: maxSentences,
+			minParagraphs: minParagraphs, maxParagraphs: maxParagraphs, minTags: minTags, maxTags: maxTags,
+			aliasPercent: aliasPercent, publishPercent: publishPercent, frontMatterPercent: frontMatterPercent,
+			minLinks: minLinks, maxLinks: maxLinks});
 		await vault.create(`${note.title}.md`, note.note);
 		generated++;
 	}
@@ -199,10 +190,16 @@ async function fillVault(maxNotes: number=100, notice: Notice, vault: Vault, {em
 		if ((i>=1) && (i%20==0)) {
 			await notice.setMessage(`Progress: Created ${i}/${maxNotes} notes so far`);
 		}
-		let note = newLoremNote({minTitleWords:minTitleWords, maxTitleWords:maxTitleWords, title: titles[i]});
+		let note = newLoremNote({title: titles[i], alltitles: titles.slice(linksBegin),
+			minTitleWords: minLinks, maxTitleWords: maxTitleWords, minSentenceWords: minSentenceWords,
+			maxSentenceWords: maxSentenceWords, minSentences: minSentences, maxSentences: maxSentences,
+			minParagraphs: minParagraphs, maxParagraphs: maxParagraphs, minTags: minTags, maxTags: maxTags,
+			aliasPercent: aliasPercent, publishPercent: publishPercent, frontMatterPercent: frontMatterPercent,
+			minLinks: minLinks, maxLinks: maxLinks});
 		await vault.create(`${note.title}.md`, note.note);
 	}
 	await notice.setMessage(`Vault generated ${maxNotes} notes`);
+	setTimeout(() => notice.hide(), 4000);
 }
 
 interface TestingVaultPluginSettings {
@@ -267,7 +264,6 @@ export default class TestingVaultPlugin extends Plugin {
 				const maxnotes=100;
 				let task_status = new Notice('Generating new testing vault', 0);
 				fillVault(maxnotes, task_status, this.app.vault, {});
-				setTimeout(() => task_status.hide(), 4000);
 			}
 		});
 		this.addCommand({
