@@ -23,7 +23,6 @@
 	},
 	"dependencies": {
 		"lorem-ipsum": "^2.0.8",
-		"svelte": "^3.55.1",
 		"word-wrap": "^1.2.3"
 	}
 }
