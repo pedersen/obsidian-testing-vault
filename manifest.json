@@ -1,7 +1,7 @@
 {
 	"id": "obsidian-testing-vault",
 	"name": "Testing Vault",
-	"version": "0.0.1",
+	"version": "1.0.0",
 	"minAppVersion": "0.15.0",
 	"description": "This allows a developer to make a random vault of arbitrary size for testing their plugins.",
 	"author": "Michael J. Pedersen <m.pedersen@icelus.org>",
