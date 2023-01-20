@@ -52,7 +52,7 @@ function newFrontMatter({
 	}
 	// generate tags here
 	const numTags = randomInt(minTags, maxTags);
-	const chosenTags = randomSubset(tags, numTags).join(',')
+	const chosenTags = randomSubset(tags, numTags).join('"\n  - "');
 	const status = randomChoice(["Backlog", "In progress", "Done"]);
 	const published = randomChoice([0, 1]);
 	const weight = randomInt(1, 100);
@@ -60,7 +60,7 @@ function newFrontMatter({
 	const end = new Date(start.getTime() + 31536000000); // magic number, milliseconds in a year
 	const duedate = randomDateInRange(start, end);
 
-	return `---\ntags: ${chosenTags}\ncssclass: ${cssclass}\n`
+	return `---\ntags: \n  - "${chosenTags}"\ncssclass: ${cssclass}\n`
 		+ `aliases: ${alias}\npublish: ${publish}\n`
 		+ `status: ${status}\npublished: ${published}\n`
 		+ `due: ${duedate.toISOString().substring(0, 10)}\n`
