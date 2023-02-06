@@ -19,7 +19,7 @@ export default class TestingVaultPlugin extends Plugin {
 	async onload() {
 		// Create a single randomized note of lorem ipsum.
 		this.addCommand({
-			id: 'testing-vault-single-note',
+			id: 'single-note',
 			name: 'Make a single randomized note in your vault',
 			callback: () => {
 				let note = newLoremNote({});
@@ -28,15 +28,14 @@ export default class TestingVaultPlugin extends Plugin {
 		});
 
 		this.addCommand({
-			id: 'testing-vault-fill-vault',
+			id: 'fill-vault',
 			name: 'Make a group of randomized notes in your vault',
 			callback: () => {
-				const maxnotes = 1000;
 				new TestingVaultModal(this.app).open();
 			}
 		});
 		this.addCommand({
-			id: 'testing-vault-destroy-vault',
+			id: 'destroy-vault',
 			name: 'Destroy everything in this vault',
 			callback: () => {
 				this.deleteVaultContents();
