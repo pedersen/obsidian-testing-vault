@@ -1,4 +1,4 @@
-import {Plugin} from 'obsidian';
+import {Plugin, TFolder} from 'obsidian';
 import {newLoremNote} from "./loremnotes";
 import {TestingVaultModal} from "./vault";
 
@@ -9,11 +9,20 @@ import {TestingVaultModal} from "./vault";
 	  which might be interesting for linguistic-related plugins
  */
 
+function destroyVault(root: TFolder) {
+	for (let child of root.children) {
+		if (child instanceof TFolder) {
+			destroyVault(child);
+			this.app.vault.delete(child, true);
+		} else {
+			this.app.vault.delete(child, true);
+		}
+	}
+}
+
 export default class TestingVaultPlugin extends Plugin {
-	async deleteVaultContents() {
-		this.app.vault.getFiles().map(async (fname) => {
-			await this.app.vault.delete(fname, true)
-		});
+	deleteVaultContents() {
+		destroyVault(this.app.vault.getRoot());
 	}
 
 	async onload() {
